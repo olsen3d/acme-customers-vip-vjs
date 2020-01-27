@@ -1,0 +1,148 @@
+<html>
+  <head>
+<style>
+body {
+  font-family: verdana;
+}
+
+#customers {
+  list-style-type: none;
+  padding: 0;
+}
+
+#customers li {
+  border: solid 1px black;
+  background-color: linen;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+#customers li.vip {
+  background-color: seagreen;
+  color: white;
+}
+
+.swatch {
+  border: solid 1px black;
+  background-color: seagreen;
+  height: 50px;
+  width: 50px;
+}
+
+#legend {
+  display: flex;
+  align-items: center;
+  border: solid 1px black;
+  width: 200px;
+}
+
+#legend > * {
+  margin: 1rem;
+}
+
+input, button {
+  height: 3rem;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  border: solid 1px black;
+  padding: 1rem;
+  margin: 1rem 20%;
+}
+
+form > * {
+  margin: 1rem;
+}
+form > label {
+  display: flex;
+  align-items: center;
+}
+
+.errorList {
+  color: red;
+}
+</style>
+  </head>
+  <body>
+    <h1>Acme Customers VIP</h1>
+    <form>
+      <ul class='errorList'></ul>
+      <input placeholder='enter name' name='name'/>
+      <input placeholder='date joined' name='dateJoined'/>
+      <label>
+        VIP <input type='checkbox' name='isVIP'/>
+      </label>
+      <button>Create</button>
+    </form>
+    <ul id='customers'>
+    </ul>
+    <div id='legend'>
+      <label>VIP</label><div class='swatch'></div>
+    </div>
+  <script>
+      const customers = [
+      { id: 1, name: 'moe',  isVIP: true, dateJoined: new Date('01/01/2019')},
+      { id: 2, name: 'larry', isVIP: true, dateJoined: new Date('03/15/2018')},
+      { id: 4, name: 'shep', dateJoined: new Date('06/15/2019')},
+      ].sort((a, b)=> a.dateJoined - b.dateJoined);
+
+      const list = document.querySelector('#customers');
+      const form = document.querySelector('form');
+
+      form.addEventListener('submit', (ev)=> {
+        ev.preventDefault();
+        const target = ev.target;
+        const name = target.querySelector("[name = 'name']"); 
+        const dateJoined = target.querySelector("[name = 'dateJoined']"); 
+        const isVIP = target.querySelector("[name = 'isVIP']"); 
+        const errorList = target.querySelector('.errorList');
+        const customer = {
+          name : name.value,
+          dateJoined: dateJoined.value ? new Date(dateJoined.value): new Date(),
+          isVIP: isVIP.value
+        };
+        const errors = [];
+        if(!name.value.trim()){
+          errors.push('name required');
+        }
+        if(customer.dateJoined.toString() === 'Invalid Date'){
+          errors.push('please enter valid date');
+        }
+
+        const html = errors.map(error => {
+          return `
+          <li>${ error }</li>
+          `;
+        }).join('');
+        errorList.innerHTML = html;
+        if(errors.length){
+          return;
+        }
+
+        customers.push(customer);
+        customers.sort((a, b)=> b.joined - a.joined);
+        render();
+        name.value = '';
+        dateJoined.value = '';
+        isVIP.checked = false;
+      });
+
+      const render = ()=> {
+        const html = customers.map( customer => {
+          return `
+            <li class='${ customer.isVIP ? 'vip': ''}'>
+              ${ customer.name } Joined on ${ customer.dateJoined.toLocaleDateString() }
+              And has been a member for ${ ((new Date() - customer.dateJoined)/(1000 * 60 * 60 * 24 * 365)).toFixed(2) } years.
+            </li>
+          `;
+        }).join('');
+        list.innerHTML = html;
+      };
+
+      render();
+
+
+  </script>
+  </body>
+</html>
